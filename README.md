@@ -21,3 +21,17 @@
 - 默认使用了h2内存数据库，由于和mysql有所区别，快速演示时可以使用h2没问题，但是正常使用最好还是使用mysql
 
 - 在application.yml中将spring.profile.active注释其中一个，即可使另一个生效，达到切换h2和mysql数据库目的
+
+## change-log
+
+### 0.0.2-20180819
+
+- 增加change log
+
+- maven打包文件名格式修改
+
+- 修改查询接口参数,增加swagger查询接口默认值
+
+### 0.0.1-20180819
+
+- init

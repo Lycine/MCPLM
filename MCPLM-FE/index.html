@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,minimum=1.0,user-scalable=no">
+    <meta name="format-detection" content="telephone=no, email=no">
+
+    <!--作者-->
+    <meta name="author" content="petrel2015@foxmail.com"/>
+
+    <!--safari 配置-->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="商品价格记录">
+    <link rel="apple-touch-icon" href="favicon.png">
+
+    <title>商品价格记录</title>
+
+    <!-- 图标 -->
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <link rel="bookmark" href="favicon.ico"/>
+
+    <!--jquery-weui-->
+    <link href="https://cdn.bootcss.com/weui/1.1.2/style/weui.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/jquery-weui/1.2.0/css/jquery-weui.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.0/js/jquery-weui.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.0/js/swiper.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.0/js/city-picker.min.js"></script>
+
+    <!--高德地图api 自动获取购物地点-->
+    <script type="text/javascript"
+            src="http://webapi.amap.com/maps?v=1.4.3&key=42ffc1fc4fadfc3a0a432e449771815d"></script>
+</head>
+<body>
+
+
+<div class="weui-cells weui-cells_form" style="margin-top:0px">
+
+    <div class="weui-cells__title">商品名称</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <input id="commodityName" class="weui-input" type="text" placeholder="请输入商品名称">
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title">商品金额</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <input id="price" class="weui-input" type="text" placeholder="请输入金额">
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title">计量单位</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <input id="unit" class="weui-input" type="text" placeholder="请选择计量单位" value="斤">
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title">时间</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <input id='gmtReal' class="weui-input" type="text" placeholder="请选择时间(选填)"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title">地理位置</div>
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea id="location" class="weui-textarea" placeholder="请输入地理位置" rows="2"></textarea>
+                <div class="weui-textarea-counter"><span>0</span>/255</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title">备注</div>
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <textarea id="remark" class="weui-textarea" placeholder="请输入备注(选填)" rows="2"></textarea>
+                <div class="weui-textarea-counter"><span>0</span>/255</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="padding: 15px;">
+    <a onclick="submitForm()" class="weui-btn weui-btn_primary">提交</a>
+</div>
+
+<script>
+    // 提交表单
+    function submitForm() {
+        // 组装数据
+        var data = {
+            price: $('#price').val(),
+            commodityName: $('#commodityName').val(),
+            location: $('#location').val(),
+            gmtReal: $('#gmtReal').val(),
+            remark: $('#remark').val(),
+            unit: $('#unit').val(),
+            currency: 'CNY',
+            browserUserAgent: navigator.userAgent,
+        };
+
+        // 验证必填信息
+        if (!data.commodityName) {
+            $.toptip('商品名称不能为空');
+            return;
+        }
+        if (!data.price) {
+            $.toptip('商品金额不能为空');
+            return;
+        }
+        if (!data.location) {
+            $.toptip('地理位置不能为空');
+            return;
+        }
+
+        $.ajax({
+            // url: "http://petrel2015.synology.me:41021/commodity/create",
+            url: "http://localhost:41021/commodity/create",
+            method: 'POST',
+            contentType: 'application/json;charset=utf-8',
+            data: JSON.stringify(data),
+            success: function (data) {
+                $.toast("提交成功", function () {
+                });
+            },
+            error: function (data) {
+                $.toast('提交失败: ' + JSON.parse(data['responseText']).message, "text");
+                console.log(data);
+            }
+        })
+    }
+
+    // 时间选择器
+    $("#gmtReal").datetimePicker();
+
+    // 计量单位picker初始化
+    $("#unit").picker({
+        title: "请选择计量单位",
+        cols: [
+            {
+                textAlign: 'center',
+                values: ['斤', '两', '公斤(kg)', '件', '克(g)']
+            }
+        ],
+        onChange: function (p, v, dv) {
+            console.log(p, v, dv);
+        },
+        onClose: function (p, v, d) {
+            console.log(p, v, d);
+        }
+    });
+
+    //地理位置获得焦点
+    $("#location").focus(function () {
+        if (getLocationFlag === 0) {
+            getLocationFlag = 1;
+            $("#location").trigger("blur");
+            $.modal({
+                title: "是否允许获取地理位位置",
+                text: "",
+                buttons: [
+                    {text: "不，手动输入", className: "default"},
+                    {text: "允许", onClick: getLocation},
+                ]
+            });
+        }
+    });
+
+    //获取地理位置
+    function getLocation() {
+        var mapObj = new AMap.Map('iCenter');
+        //高德api
+        mapObj.plugin('AMap.Geolocation', function () {
+            geolocation = new AMap.Geolocation({
+                enableHighAccuracy: true,
+                timeout: 3000,
+                maximumAge: 0,
+                convert: true,
+                showButton: false,
+                buttonPosition: 'LB',
+                buttonOffset: new AMap.Pixel(10, 20),
+                showMarker: true,
+                showCircle: true,
+                panToLocation: true,
+                zoomToAccuracy: true
+            });
+            mapObj.addControl(geolocation);
+            geolocation.getCurrentPosition();
+            AMap.event.addListener(geolocation, 'complete', onComplete); // 返回定位信息
+            AMap.event.addListener(geolocation, 'error', onError);       // 返回定位出错信息
+        });
+
+        // 显示加载toast
+        $.showLoading();
+        setTimeout(function () {
+            $.hideLoading();
+        }, 3000)
+    }
+
+    // 定位信息成功结果
+    function onComplete(obj) {
+        $.hideLoading();
+        var res = '经纬度：' + obj.position +
+            '\n精度范围：' + obj.accuracy +
+            '米\n定位结果的来源：' + obj.location_type +
+            '\n状态信息：' + obj.info +
+            '\n地址：' + obj.formattedAddress +
+            '\n地址信息：' + JSON.stringify(obj.addressComponent, null, 4);
+        console.log(res);
+
+        // 如果地址不存在认为获取失败,手动输入
+        if (!obj.formattedAddress) {
+            $.toast("获取地理位置失败，请手动输入", "cancel", function (toast) {
+            });
+        } else {
+            // 获取成功后赋值,并更新文本域字数
+            $('#location').val(obj.formattedAddress);
+            $('#location').next().children("span:first-child").text($('#location').val().length);
+
+            // 隐藏加载toast
+            $.hideLoading();
+
+            // 顶部提示成功
+            $.toptip('获取地理位置成功', 'success');
+        }
+
+    }
+
+    // 定位信息失败结果
+    function onError(obj) {
+        // 隐藏加载toast
+        $.hideLoading();
+
+        console.log(obj);
+
+        // 顶部提示获取地理位置失败
+        $.toptip('获取地理位置失败', 'error');
+    }
+
+    // 更新文本域字数
+    $(".weui-textarea").focus(function () {
+        $(this).next().children("span:first-child").text($(this).val().length);
+    });
+
+    $(".weui-textarea").keyup(function () {
+        $(this).next().children("span:first-child").text($(this).val().length);
+    });
+
+    $(".weui-textarea").blur(function () {
+        $(this).next().children("span:first-child").text($(this).val().length);
+    });
+
+    // 加载成功后获取当前时间
+    $("#gmtReal").trigger("click");
+    $("#commodityName").trigger("click");
+
+    // 只提示一次获取当前地理位置
+    var getLocationFlag = 0;
+</script>
+
+
+</body>
+</html>
+
+
+
+

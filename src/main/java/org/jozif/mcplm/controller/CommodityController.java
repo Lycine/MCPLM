@@ -79,9 +79,8 @@ public class CommodityController {
     @ApiOperation(value = "查询商品记录", notes = "页码和每页大小必填")
     @ResponseBody
     @RequestMapping(value = "/retrieve/{pageNum}/{pageSize}", produces = {"application/json;charset=UTF-8"}, method = {RequestMethod.GET, RequestMethod.POST})
-    public Object retrieve(@ApiParam(value = "页码", required = true) @PathVariable("pageNum") int pageNum,
-                           @ApiParam(value = "每页大小", required = true) @PathVariable("pageSize") int pageSize,
-                           @RequestBody Commodity commodity) {
+    public Object retrieve(@ApiParam(value = "页码", required = true, defaultValue = "1") @PathVariable("pageNum") int pageNum,
+                           @ApiParam(value = "每页大小", required = true, defaultValue = "10") @PathVariable("pageSize") int pageSize) {
 
         return commodityService.findAll(pageNum, pageSize);
     }
